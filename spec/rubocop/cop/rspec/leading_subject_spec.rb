@@ -294,10 +294,10 @@ RSpec.describe RuboCop::Cop::RSpec::LeadingSubject do
     expect_offense(<<~RUBY)
       RSpec.describe User do
         let(:foo) { bar }
-
         subject(:a) { first }
         ^^^^^^^^^^^^^^^^^^^^^ Declare `subject` above any other `let` declarations.
         subject(:b) { second }
+        ^^^^^^^^^^^^^^^^^^^^^^ Declare `subject` above any other `let` declarations.
       end
     RUBY
 
@@ -306,7 +306,6 @@ RSpec.describe RuboCop::Cop::RSpec::LeadingSubject do
         subject(:a) { first }
         subject(:b) { second }
         let(:foo) { bar }
-
       end
     RUBY
   end

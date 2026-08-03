@@ -47,26 +47,39 @@ module RuboCop
         private
 
         def check_previous_nodes(node)
-          offending_node(node) do |offender|
-            msg = format(MSG, offending: offender.method_name)
-            add_offense(node, message: msg) do |corrector|
-              autocorrect(corrector, node, offender)
-            end
+          offender = first_offender(node)
+          return unless offender
+
+          msg = format(MSG, offending: offender.method_name)
+          add_offense(node, message: msg) do |corrector|
+            target = move_target(node)
+            autocorrect(corrector, node, target) if target
           end
         end
 
-        def offending_node(node)
-          offender = nil
-          parent(node).each_child_node do |sibling|
-            break if sibling.equal?(node)
+        def first_offender(node)
+          preceding_siblings(node).find { |sibling| offending?(sibling) }
+        end
 
+        # A subject may move above preceding `let`s/hooks, but never above
+        # another subject. Returns the earliest node to move in front of, or
+        # `nil` when a preceding subject blocks it (a later pass handles it).
+        def move_target(node)
+          target = nil
+          preceding_siblings(node).each do |sibling|
             if subject?(sibling)
-              offender = nil
-            elsif offender.nil? && offending?(sibling)
-              offender = sibling
+              target = nil
+            elsif target.nil? && offending?(sibling)
+              target = sibling
             end
           end
-          yield offender if offender
+          target
+        end
+
+        def preceding_siblings(node)
+          parent(node).each_child_node.take_while do |sibling|
+            !sibling.equal?(node)
+          end
         end
 
         def parent(node)
