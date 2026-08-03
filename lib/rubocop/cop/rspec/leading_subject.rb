@@ -56,11 +56,17 @@ module RuboCop
         end
 
         def offending_node(node)
-          parent(node).each_child_node.find do |sibling|
+          offender = nil
+          parent(node).each_child_node do |sibling|
             break if sibling.equal?(node)
 
-            yield sibling if offending?(sibling)
+            if subject?(sibling)
+              offender = nil
+            elsif offender.nil? && offending?(sibling)
+              offender = sibling
+            end
           end
+          yield offender if offender
         end
 
         def parent(node)

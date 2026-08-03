@@ -289,4 +289,25 @@ RSpec.describe RuboCop::Cop::RSpec::LeadingSubject do
       end
     RUBY
   end
+
+  it 'does not move a subject above another subject' do
+    expect_offense(<<~RUBY)
+      RSpec.describe User do
+        let(:foo) { bar }
+
+        subject(:a) { first }
+        ^^^^^^^^^^^^^^^^^^^^^ Declare `subject` above any other `let` declarations.
+        subject(:b) { second }
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      RSpec.describe User do
+        subject(:a) { first }
+        subject(:b) { second }
+        let(:foo) { bar }
+
+      end
+    RUBY
+  end
 end

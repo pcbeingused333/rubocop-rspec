@@ -2,6 +2,7 @@
 
 ## Master (Unreleased)
 
+- Fix `RSpec/LeadingSubject` to not move a subject above another subject, avoiding an autocorrect clash with `RSpec/MultipleSubjects` that could remove a subject used in tests. ([@pcbeingused333])
 - Fix false positives for `RSpec/Pending` when using SimpleCov 1.x `skip` filters. ([@gee-forr])
 - Fix false positives for `RSpec/SpecFilePathFormat` when matching spec partials. ([@ydah])
 - Fix incorrect autocorrection for `RSpec/DescribedClass` when using nested example groups with `EnforcedStyle: explicit`. ([@ydah])
@@ -1095,6 +1096,7 @@ Compatibility release so users can upgrade RuboCop to 0.51.0. No new features.
 [@oshiro3]: https://github.com/oshiro3
 [@patrickomatic]: https://github.com/patrickomatic
 [@paydaylight]: https://github.com/paydaylight
+[@pcbeingused333]: https://github.com/pcbeingused333
 [@philcoggins]: https://github.com/PhilCoggins
 [@pirj]: https://github.com/pirj
 [@pocke]: https://github.com/pocke
