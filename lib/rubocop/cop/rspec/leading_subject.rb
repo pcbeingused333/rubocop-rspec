@@ -47,7 +47,7 @@ module RuboCop
         private
 
         def check_previous_nodes(node)
-          offender = first_offender(node)
+          offender = preceding_offender(node)
           return unless offender
 
           msg = format(MSG, offending: offender.method_name)
@@ -57,21 +57,24 @@ module RuboCop
           end
         end
 
-        def first_offender(node)
+        # The declaration that makes this `subject` non-leading. Used only to
+        # build the offense message and to decide whether to report an offense;
+        # where the `subject` actually moves is decided by `move_target`.
+        def preceding_offender(node)
           preceding_siblings(node).find { |sibling| offending?(sibling) }
         end
 
-        # A subject may move above preceding `let`s/hooks, but never above
-        # another subject. Returns the earliest node to move in front of, or
-        # `nil` when a preceding subject blocks it (a later pass handles it).
+        # A `subject` may move above preceding `let`s/hooks, but never above
+        # another `subject`. Walking preceding siblings in reverse, we stop at
+        # the nearest `subject` and return the topmost offender after it, or
+        # `nil` when a `subject` blocks the move (a later pass moves this one
+        # once the `subject` above it has moved).
         def move_target(node)
           target = nil
-          preceding_siblings(node).each do |sibling|
-            if subject?(sibling)
-              target = nil
-            elsif target.nil? && offending?(sibling)
-              target = sibling
-            end
+          preceding_siblings(node).reverse_each do |sibling|
+            break if subject?(sibling)
+
+            target = sibling if offending?(sibling)
           end
           target
         end
